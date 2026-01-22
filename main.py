@@ -3,7 +3,8 @@ import speech_recognition as sr
 import webbrowser
 import pyttsx3
 import datetime
-import time  
+import musicLibrary  
+
 
 # Initialize global engines once
 recognizer = sr.Recognizer()
@@ -24,7 +25,6 @@ def speak(text):
         engine.stop()
     except Exception as e:
         print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
-        # On linux, you might need: sudo apt install espeak ffmpeg libespeak1
 
 def processCommand(command):
     print(f"[User]: {command}")
@@ -50,8 +50,12 @@ def processCommand(command):
         except IndexError:
              speak("Sorry, I didn't catch the search term.")
     elif "what is your name" in command or "who are you" in command:
-        speak("I am Jarvis, a Python assistant created by you.")
-    elif "exit" in command or "quit" in command or "stop" in command:
+        speak("I am Jarvis, Your personal AI assistant.")
+    elif command.startswith("play"):
+        song = command.replace("play", "", 1).strip()
+        link = musicLibrary.music(song)
+        webbrowser.open(link)
+    elif command in ["exit", "quit", "stop","bye", "thank you"]:
         speak("Goodbye!")
         sys.exit()
     else:
