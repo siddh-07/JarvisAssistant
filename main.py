@@ -1,62 +1,67 @@
 import speech_recognition as sr
 import webbrowser
 import pyttsx3
+import datetime # Import datetime at the top
 
+# Initialize global engines once
 recognizer = sr.Recognizer()
-ttsx = pyttsx3.init()  
+ttsx = pyttsx3.init()
+
+# Optional: Configure voice (make it speak faster or change voice)
+ttsx.setProperty('voice', 1.0) # Change index for different voices
+ttsx.setProperty('rate', 150) # Speed up a bit
 
 def speak(text):
+    """Function to convert text to speech"""
+    print(f"[Jarvis]: {text}")
     ttsx.say(text)
     ttsx.runAndWait()
-    
-def process_command(command):
-    command = command.lower()
-    
-    if "open YouTube" in command:
+
+def processCommand(command):
+    print(f"[User]: {command}")
+    if "open youtube" in command:
         speak("Opening YouTube")
         webbrowser.open("https://www.youtube.com")
-    elif "open Google" in command:
+    elif "open google" in command:
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
+    elif "what time is it" in command:
+        now = datetime.datetime.now()
+        current_time = now.strftime("%H:%M")
+        speak(f"The current time is {current_time}")
+    elif "exit" in command or "quit" in command:
+        speak("Goodbye!")
+        exit()
     else:
-        speak("Command not recognized. Please try again.")
+        speak("Sorry, I didn't understand that command.")    
+    
 
-if  __name__ == "__main__":
-    speak("Initializing Jarvis.....")
+if __name__ == "__main__":
+    speak("Initializing Jarvis...")
     
     while True:
-        # Listen for word "Jarvis"
         r = sr.Recognizer()
-       
-        try:
-             with sr.Microphone() as source:
-                r.adjust_for_ambient_noise(source, duration=1)
-                print("Listening for 'Jarvis'...")
-                audio = r.listen(source,timeout=5,phrase_time_limit=3)
-
-                print("Recognizing...") 
-                word = r.recognize_google(audio)
-                print(f"User said: {word}")
-                    
-                if word.lower() == "jarvis":
-                    speak("Yes, how can I help you?")
-                    
-                    # Listen for command
-                    with sr.Microphone() as source:
-                        r.adjust_for_ambient_noise(source, duration=1)
-                        print("Listening for command...")
-                        audio = r.listen(source,timeout=5,phrase_time_limit=5)
-
-                        print("Recognizing command...") 
-                        command = r.recognize_google(audio)
-                        print(f"User command: {command}")
-                        
-                        process_command(command)
-            
-        except sr.UnknownValueError:
-            print("Could not understand audio")
-        except sr.RequestError as e:
-            print(f"Could not request results; {e}")  
+        print("Recognizing...")
         
+        try:
+            with sr.Microphone() as source:
+                print("Listening...")
+                audio = recognizer.listen(source , timeout=2, phrase_time_limit=1)
+            word = recognizer.recognize_google(audio).lower()
             
-    
+            if(word == "jarvis"):
+                speak("Yaa..")
+                
+                #Listen for next command
+                with sr.Microphone() as source:
+                    print("Jarvis Activated...")
+                    audio = recognizer.listen(source , timeout=2, phrase_time_limit=1)
+                    command = recognizer.recognize_google(audio).lower()
+                
+                processCommand(command)
+                
+            elif(word == "exit" or word == "quit"):
+                speak("Goodbye!")
+                exit()
+        except Exception as e:
+            print("Error:", str(e))
