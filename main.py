@@ -4,7 +4,7 @@ import webbrowser
 import pyttsx3
 import datetime
 import musicLibrary  
-
+import pywhatkit 
 
 # Initialize global engines once
 recognizer = sr.Recognizer()
@@ -51,11 +51,21 @@ def processCommand(command):
              speak("Sorry, I didn't catch the search term.")
     elif "what is your name" in command or "who are you" in command:
         speak("I am Jarvis, Your personal AI assistant.")
-    elif command.startswith("play"):
-        song = command.replace("play", "", 1).strip()
-        link = musicLibrary.music(song)
-        webbrowser.open(link)
-    elif command in ["exit", "quit", "stop","bye", "thank you"]:
+    elif 'play' in command:
+        try:
+            # split the command only on the FIRST occurrence of "play"
+            song = command.split("play", 1)[1].strip()
+            
+            if song:
+                speak(f"Okay, playing {song} on YouTube.")
+                # This single line does the search and opens the browser
+                pywhatkit.playonyt(song)
+            else:
+                speak("What did you want me to play?")
+        except Exception as e:
+             speak("Sorry, I encountered an issue trying to play that.")
+             print(f"Error with pywhatkit: {e}")
+    elif command in "exit" or command in "quit" or command in "stop" or command in "bye" or command in "thank you":
         speak("Goodbye!")
         sys.exit()
     else:
@@ -81,7 +91,7 @@ if __name__ == "__main__":
             print(f"Heard: {word}")
 
             if word == "jarvis":
-                speak("Yes, I'm listening.")
+                speak("Yes, how can I help you?")
 
                 # Listen for next command
                 with sr.Microphone() as source:
@@ -94,7 +104,7 @@ if __name__ == "__main__":
                 #  Process the command
                 processCommand(command)
                 
-            elif word in ["exit", "quit", "stop","bye", "thank you"]:
+            elif word in "exit" or word in "quit" or word in "stop" or word in "bye" or word in "thank you":
                 speak("Goodbye!")
                 sys.exit()
         except sr.WaitTimeoutError:
