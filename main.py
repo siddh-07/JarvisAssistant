@@ -14,7 +14,6 @@ def speak(text):
     print(f"[Jarvis]: {text}")
     try:
         engine = pyttsx3.init()
-        
         engine.setProperty('rate', 150) 
         # Optional:change voice if needed
         # voices = engine.getProperty('voices')
@@ -28,16 +27,24 @@ def speak(text):
 
 def processCommand(command):
     print(f"[User]: {command}")
+    
+    # Open YouTube
     if "open youtube" in command:
         speak("Opening YouTube")
         webbrowser.open("https://www.youtube.com")
+    
+    # Open Google
     elif "open google" in command:
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
+    
+    # Tell the time
     elif "time" in command and ("what" in command or "tell me" in command):
         now = datetime.datetime.now()
         current_time = now.strftime("%I:%M %p")
         speak(f"The current time is {current_time}")
+    
+    # Search in Google
     elif "search for" in command:
         try:
             # Grab whatever is after "search for"
@@ -49,12 +56,15 @@ def processCommand(command):
                 speak("I heard 'search for', but nothing after it.")
         except IndexError:
              speak("Sorry, I didn't catch the search term.")
+    
+    # Tell info about JARVIS
     elif "what is your name" in command or "who are you" in command:
         speak("I am Jarvis, Your personal AI assistant.")
-    elif 'play' in command:
+    
+    # Play music from Youtube
+    elif command.startswith("play "):
         try:
-            # split the command only on the FIRST occurrence of "play"
-            song = command.split("play", 1)[1].strip()
+            song = command.replace("play", "").strip()
             
             if song:
                 speak(f"Okay, playing {song} on YouTube.")
@@ -65,7 +75,9 @@ def processCommand(command):
         except Exception as e:
              speak("Sorry, I encountered an issue trying to play that.")
              print(f"Error with pywhatkit: {e}")
-    elif command in "exit" or command in "quit" or command in "stop" or command in "bye" or command in "thank you":
+                
+    # Exit command
+    elif command in ["exit", "quit", "stop", "bye", "thank you"]:
         speak("Goodbye!")
         sys.exit()
     else:
@@ -79,7 +91,10 @@ if __name__ == "__main__":
     with sr.Microphone() as source:
         print("Adjusting for background noise... please wait.")
         recognizer.adjust_for_ambient_noise(source, duration=1)
-        print("Ready.")
+        recognizer.energy_threshold = 300
+        recognizer.dynamic_energy_threshold = True
+        recognizer.pause_threshold = 0.8
+        print("Ready... you can say 'Jarvis' to wake me up.")
 
     while True:
         print("\n--- Waiting for 'Jarvis' ---")
@@ -87,10 +102,10 @@ if __name__ == "__main__":
             with sr.Microphone() as source:
                 audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
             
-            word = recognizer.recognize_google(audio).lower()
+            word = recognizer.recognize_google(audio, language="en-IN").lower().strip()
             print(f"Heard: {word}")
 
-            if word == "jarvis":
+            if "jarvis" in word:
                 speak("Yes, how can I help you?")
 
                 # Listen for next command
@@ -98,21 +113,23 @@ if __name__ == "__main__":
                     print("--- Listening for command ---")
                     # It helps to re-adjust briefly before a specific command
                     recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                    recognizer.energy_threshold = 300
+                    recognizer.dynamic_energy_threshold = True
+                    recognizer.pause_threshold = 0.8
+
                     # Added timeout here so it doesn't hang forever if you say nothing
                     audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
-                    command = recognizer.recognize_google(audio).lower()
+                    command = recognizer.recognize_google(audio, language="en-IN").lower().strip()
                 #  Process the command
                 processCommand(command)
-                
-            elif word in "exit" or word in "quit" or word in "stop" or word in "bye" or word in "thank you":
+            elif word in ["exit", "quit", "stop", "bye", "thank you"]:
                 speak("Goodbye!")
                 sys.exit()
         except sr.WaitTimeoutError:
             # Normal behavior if nobody speaks for a few seconds
             pass
         except sr.UnknownValueError:
-            # Heard noise, but couldn't make out words.
-            # Don't print error, just loop back and listen again.
+            # Could not understand audio
             pass
         except Exception as e:
             # Only print real errors (like internet connection issues)
