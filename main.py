@@ -9,25 +9,22 @@ import time
 recognizer = sr.Recognizer()
 
 # --- Initialization of TTS ---
-try:
-    ttsx = pyttsx3.init()
-    # The following line was incorrect (1.0 is a float, indices are integers).
-    # Commenting it out to use system default is safer.
-    # voices = ttsx.getProperty('voices')
-    # ttsx.setProperty('voice', voices[1].id) # Usually 0 for male, 1 for female
-    ttsx.setProperty('rate', 150)
-except Exception as e:
-    print(f"TTS Initialization error: {e}")
-
 def speak(text):
-    """Function to convert text to speech"""
     print(f"[Jarvis]: {text}")
-    ttsx.say(text)
-    ttsx.runAndWait()
-    # Add a short pause after speaking so the microphone doesn't
-    # instantly pick up the computer's own voice.
-    # time.sleep(0.5)
-
+    try:
+        engine = pyttsx3.init()
+        
+        engine.setProperty('rate', 150) 
+        # Optional:change voice if needed
+        # voices = engine.getProperty('voices')
+        # engine.setProperty('voice', voices[1].id) 
+        engine.say(text)
+        engine.runAndWait()
+        #Explicitly stop the engine loop to release resources
+        engine.stop()
+    except Exception as e:
+        print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
+        # On linux, you might need: sudo apt install espeak ffmpeg libespeak1
 
 def processCommand(command):
     print(f"[User]: {command}")
@@ -58,8 +55,7 @@ def processCommand(command):
         speak("Goodbye!")
         sys.exit()
     else:
-        # Don't speak an error for every background noise, just print it
-        print("[Jarvis]: Command recognized, but no action defined for it.")
+        speak("Sorry, I didn't understand that command.")
 
 
 
@@ -91,9 +87,10 @@ if __name__ == "__main__":
                     # Added timeout here so it doesn't hang forever if you say nothing
                     audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
                     command = recognizer.recognize_google(audio).lower()
-
+                #  Process the command
                 processCommand(command)
-            elif word == "exit" or word == "quit":
+                
+            elif word in ["exit", "quit", "stop","bye", "thank you"]:
                 speak("Goodbye!")
                 sys.exit()
         except sr.WaitTimeoutError:
