@@ -18,7 +18,6 @@ import pywhatkit
 from openai import OpenAI 
 from typing import Optional
 
-
 # ================== ENVIRONMENT SETUP ==================
 
 load_dotenv()
@@ -31,10 +30,7 @@ if not API_KEY:
 # ================== GLOBAL INITIALIZATION ==================
 
 recognizer = sr.Recognizer()
-
-# Initialize OpenAI client once
 openai_client = OpenAI()
-
 is_speaking = False
 
 # ================== HELPER FUNCTIONS ==================
@@ -52,7 +48,6 @@ def speak(text):
         is_speaking = False
     except Exception as e:
         print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
-
 
 def aiCommand(command: str) -> str:
     # Send command to OpenAI and return response
@@ -75,7 +70,6 @@ def aiCommand(command: str) -> str:
     except Exception as e:
         print(f"\n--- AI ERROR: {e} ---")
         return "Sorry, I am having trouble processing that right now."
-
     
 def processCommand(command: str):
     """Process user voice commands"""
