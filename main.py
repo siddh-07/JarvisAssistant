@@ -1,3 +1,12 @@
+"""
+Jarvis - Personal Voice Assistant
+Author: Siddh Bhadani
+Description:
+A voice-controlled AI assistant using Speech Recognition, Text-to-Speech,
+and OpenAI for intelligent responses.
+
+"""
+
 from dotenv import load_dotenv
 import os
 import sys
@@ -6,144 +15,161 @@ import webbrowser
 import pyttsx3
 import datetime 
 import pywhatkit 
-import openai
+from openai import OpenAI 
+from typing import Optional
 
-# Load environment variables from .env file
+
+# ================== ENVIRONMENT SETUP ==================
+
 load_dotenv()
-
 API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Initialize global engines once
+if not API_KEY:
+    print("ERROR: OPENAI_API_KEY not found.")
+    sys.exit(1)
+
+# ================== GLOBAL INITIALIZATION ==================
+
 recognizer = sr.Recognizer()
 
-# --- Initialization of TTS ---
+# Initialize OpenAI client once
+openai_client = OpenAI()
+
+is_speaking = False
+
+# ================== HELPER FUNCTIONS ==================
+
 def speak(text):
     print(f"[Jarvis]: {text}")
     try:
+        global is_speaking
+        is_speaking = True
+        
         engine = pyttsx3.init()
-        engine.setProperty('rate', 150) 
-        # Optional:change voice if needed
-        # voices = engine.getProperty('voices')
-        # engine.setProperty('voice', voices[1].id) 
+        engine.setProperty('rate', 150) # Set speech rate
         engine.say(text)
         engine.runAndWait()
-        #Explicitly stop the engine loop to release resources
-        engine.stop()
+        is_speaking = False
     except Exception as e:
         print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
-        
-def aiCommand(text):
-    client = openai.Client(API_KEY)
+
+
+def aiCommand(command: str) -> str:
+    # Send command to OpenAI and return response
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are Jarvis, a friendly and smart personal assistant. "
+                        "Answer concisely, clearly and in shorter form.."
+                    ),
+                },
+                {"role": "user", "content": command},
+            ],
+        )
+        return response.choices[0].message.content.strip()
+
+    except Exception as e:
+        print(f"\n--- AI ERROR: {e} ---")
+        return "Sorry, I am having trouble processing that right now."
+
     
-
-
-
-def processCommand(command):
+def processCommand(command: str):
+    """Process user voice commands"""
     print(f"[User]: {command}")
-    
-    # Open YouTube
+
+    # ---------- OPEN WEBSITES ----------
     if "open youtube" in command:
         speak("Opening YouTube")
         webbrowser.open("https://www.youtube.com")
-    
-    # Open Google
+
     elif "open google" in command:
         speak("Opening Google")
         webbrowser.open("https://www.google.com")
-    
-    # Tell the time
-    elif "time" in command and ("what" in command or "tell me" in command):
+
+    # ---------- TIME ----------
+    elif "time" in command:
         now = datetime.datetime.now()
-        current_time = now.strftime("%I:%M %p")
-        speak(f"The current time is {current_time}")
-    
-    # Search in Google
-    elif "search for" in command:
-        try:
-            # Grab whatever is after "search for"
-            search_term = command.split("search for", 1)[1].strip()
-            if search_term:
-                speak(f"Searching Google for {search_term}")
-                webbrowser.open(f"https://www.google.com/search?q={search_term}")
-            else:
-                speak("I heard 'search for', but nothing after it.")
-        except IndexError:
-             speak("Sorry, I didn't catch the search term.")
-    
-    # Tell info about JARVIS
-    elif "what is your name" in command or "who are you" in command:
-        speak("I am Jarvis, Your personal AI assistant.")
-    
-    # Play music from Youtube
+        speak(f"The current time is {now.strftime('%I:%M %p')}")
+
+    # ---------- IDENTITY ----------
+    elif "your name" in command or "who are you" in command:
+        speak("I am Jarvis, your personal AI assistant.")
+
+    # ---------- PLAY MUSIC ----------
     elif command.startswith("play "):
-        try:
-            song = command.replace("play", "").strip()
-            
-            if song:
-                speak(f"Okay, playing {song} on YouTube.")
-                # This single line does the search and opens the browser
-                pywhatkit.playonyt(song)
-            else:
-                speak("What did you want me to play?")
-        except Exception as e:
-             speak("Sorry, I encountered an issue trying to play that.")
-             print(f"Error with pywhatkit: {e}")
-                
-    # Exit command
-    elif command in ["exit", "quit", "stop", "bye", "thank you"]:
+        song = command.replace("play", "").strip()
+        if song:
+            speak(f"Playing {song} on YouTube")
+            pywhatkit.playonyt(song)
+        else:
+            speak("What should I play?")
+
+    # ---------- EXIT ----------
+    elif command in ["exit", "quit", "stop", "bye"]:
         speak("Goodbye!")
         sys.exit()
+
+    elif command in ["thank you", "thanks"]:
+        speak("You're most welcome!")
+        sys.exit()
+
+    # ---------- AI FALLBACK ----------
     else:
-        speak("Sorry, I didn't understand that command.")
+        speak(aiCommand(command))
+        
+def listen(timeout=5, phrase_limit=5) -> Optional[str]:
+    # Listen from microphone and return recognized speech
+    try:
+        with sr.Microphone() as source:
+            audio = recognizer.listen(
+                source,
+                timeout=timeout,
+                phrase_time_limit=phrase_limit
+            )
+        return recognizer.recognize_google(audio, language="en-IN").lower().strip()
 
-
+    except sr.WaitTimeoutError:
+        return None
+    except sr.UnknownValueError:
+        return None
+    except Exception as e:
+        print(f"Listening Error: {e}")
+        return None
 
 if __name__ == "__main__":
-    speak("Initializing Jarvis...")
-    
+    speak("Initializing Jarvis")
+
     with sr.Microphone() as source:
-        print("Adjusting for background noise... please wait.")
         recognizer.adjust_for_ambient_noise(source, duration=1)
-        recognizer.energy_threshold = 300
-        recognizer.dynamic_energy_threshold = True
-        recognizer.pause_threshold = 0.8
-        print("Ready... you can say 'Jarvis' to wake me up.")
+
+    speak("Say Jarvis to wake me up")
 
     while True:
-        print("\n--- Waiting for 'Jarvis' ---")
-        try:
-            with sr.Microphone() as source:
-                audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
-            
-            word = recognizer.recognize_google(audio, language="en-IN").lower().strip()
-            print(f"Heard: {word}")
+        if is_speaking:
+            continue
 
-            if "jarvis" in word:
-                speak("Yes, how can I help you?")
+        print("\n--- Waiting for wake word ---")
+        word = listen()
 
-                # Listen for next command
-                with sr.Microphone() as source:
-                    print("--- Listening for command ---")
-                    # It helps to re-adjust briefly before a specific command
-                    recognizer.adjust_for_ambient_noise(source, duration=0.5)
-                    recognizer.energy_threshold = 300
-                    recognizer.dynamic_energy_threshold = True
-                    recognizer.pause_threshold = 0.8
+        if not word:
+            continue
 
-                    # Added timeout here so it doesn't hang forever if you say nothing
-                    audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
-                    command = recognizer.recognize_google(audio, language="en-IN").lower().strip()
-                #  Process the command
+        print(f"Heard: {word}")
+
+        if "jarvis" in word:
+            speak("Yes, How can I help you?")
+            command = listen(timeout=8, phrase_limit=8)
+            if command:
                 processCommand(command)
-            elif word in ["exit", "quit", "stop", "bye", "thank you"]:
-                speak("Goodbye!")
-                sys.exit()
-        except sr.WaitTimeoutError:
-            # Normal behavior if nobody speaks for a few seconds
-            pass
-        except sr.UnknownValueError:
-            # Could not understand audio
-            pass
-        except Exception as e:
-            # Only print real errors (like internet connection issues)
-            print(f"An unexpected error occurred: {e}")
+            else:
+                speak("I didn't catch that. Please say your command again.")
+        elif word in ["exit", "quit", "stop", "bye"]:
+            speak("Goodbye!")
+            sys.exit()
+        elif word in ["thank you","thanks"]: 
+            speak("Your Most Welcome!")
+            sys.exit()
