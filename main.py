@@ -2,9 +2,9 @@ import sys
 import speech_recognition as sr
 import webbrowser
 import pyttsx3
-import datetime
-import musicLibrary  
+import datetime 
 import pywhatkit 
+import openai
 
 # Initialize global engines once
 recognizer = sr.Recognizer()
@@ -24,6 +24,11 @@ def speak(text):
         engine.stop()
     except Exception as e:
         print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
+        
+def aiCommand(text):
+    client = openai.Client("OPENAI_API_KEY")
+
+
 
 def processCommand(command):
     print(f"[User]: {command}")
