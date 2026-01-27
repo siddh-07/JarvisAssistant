@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+import os
 import sys
 import speech_recognition as sr
 import webbrowser
@@ -5,6 +7,11 @@ import pyttsx3
 import datetime 
 import pywhatkit 
 import openai
+
+# Load environment variables from .env file
+load_dotenv()
+
+API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize global engines once
 recognizer = sr.Recognizer()
@@ -26,7 +33,8 @@ def speak(text):
         print(f"\n--- TTS ERROR: Could not speak. Error: {e} ---")
         
 def aiCommand(text):
-    client = openai.Client("OPENAI_API_KEY")
+    client = openai.Client(API_KEY)
+    
 
 
 
