@@ -14,6 +14,7 @@ if not OPENAI_API_KEY:
 
 if not WEATHER_API_KEY:
     print("[WARNING]: WEATHER_API_KEY not found. Weather features disabled.")
+    sys.exit(1)
 
 # ================== LAUNCH GUI ==================
 
