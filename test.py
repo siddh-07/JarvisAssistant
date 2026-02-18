@@ -1,41 +1,38 @@
+import os
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = "WEATHER_API_KEY"   # replace with your real key
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY").strip()
 
 def get_weather(city: str) -> str:
-    url = "https://api.openweathermap.org/data/2.5/weather"
+    location_url = "http://dataservice.accuweather.com/locations/v1/cities/search"
+    location_params = {"apikey": WEATHER_API_KEY, "q": city}
 
-    params = {
-        "q": city,
-        "appid": API_KEY,
-        "units": "metric"
-    }
+    response = requests.get(location_url, params=location_params)
+    locations = response.json()
 
-    try:
-        response = requests.get(url, params=params)
-        print(response.status_code)
+    if not locations:
+        return "City not found."
 
-        if response.status_code != 200:
-            return "Sorry, I couldn't fetch the weather right now."
+    location_key = locations[0]["Key"]
+    city_name = locations[0]["LocalizedName"]
 
-        data = response.json()
+    weather_url = f"http://dataservice.accuweather.com/currentconditions/v1/{location_key}"
+    weather_params = {"apikey": WEATHER_API_KEY, "details": True}
 
-        city_name = data["name"]
-        temperature = data["main"]["temp"]
-        condition = data["weather"][0]["description"]
-        humidity = data["main"]["humidity"]
+    weather_response = requests.get(weather_url, params=weather_params)
+    data = weather_response.json()[0]
 
-        return (
-            f"The current weather in {city_name} is {condition}. "
-            f"The temperature is {temperature} degree Celsius "
-            f"with humidity at {humidity} percent."
-        )
+    temperature = data["Temperature"]["Metric"]["Value"]
+    condition = data["WeatherText"]
+    humidity = data["RelativeHumidity"]
 
-    except:
-        return "Sorry, there was an error getting the weather."
+    return (
+        f"The current weather in {city_name} is {condition}. "
+        f"The temperature is {temperature} degree Celsius "
+        f"with humidity at {humidity} percent."
+    )
 
-
-print(get_weather("New York"))
+print(get_weather("Regina"))
