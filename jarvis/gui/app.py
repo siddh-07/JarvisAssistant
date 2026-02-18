@@ -330,4 +330,4 @@ class JarvisApp(ctk.CTk):
                 msg = "Goodbye!"
                 self.add_message(msg, sender="jarvis")
                 speak(msg)
-                sys.exit()
+                self.after(500, self.destroy)

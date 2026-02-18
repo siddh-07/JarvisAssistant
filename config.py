@@ -58,4 +58,4 @@ WAVE_FPS         = 40           # ms per frame (~25fps)
 
 # ================== FOOTER TEXT ==================
 
-FOOTER_TEXT = "STARK INDUSTRIES  //  J.A.R.V.I.S  v2.0  //  ALL SYSTEMS NOMINAL"
+FOOTER_TEXT = "SID INDUSTRIES  //  J.A.R.V.I.S  v2.0  //  ALL SYSTEMS NOMINAL"
