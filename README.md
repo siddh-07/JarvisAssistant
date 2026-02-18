@@ -1,7 +1,7 @@
 # 🤖 Jarvis – Personal Voice Assistant (Python)
 
 Jarvis is a **Python-based AI-powered personal voice assistant** inspired by assistants like Alexa and Google Assistant.
-It listens for a wake word (“Jarvis”), understands spoken commands, performs common tasks, and intelligently answers questions using OpenAI.
+It listens for a wake word ("Jarvis"), understands spoken commands, performs common tasks, and intelligently answers questions using OpenAI.
 
 This project is **beginner-friendly**, **well-structured**, and designed to be easily extendable.
 
@@ -18,6 +18,7 @@ This project is **beginner-friendly**, **well-structured**, and designed to be e
   * Open Google
 * 🎵 **Play Music from YouTube**
 * ⏰ **Time Queries**
+* 🌦️ **Live Weather Reports** (via AccuWeather API)
 * 🧠 **AI-Powered Answers** (via OpenAI API)
 * 🔐 **Secure API Key Management** using `.env`
 * ⚡ Optimized for **low latency & stability**
@@ -31,10 +32,10 @@ This project is **beginner-friendly**, **well-structured**, and designed to be e
 2. Once detected:
 
    * Jarvis responds verbally
-   * Listens for the user’s command
+   * Listens for the user's command
 3. Command is:
 
-   * Executed locally (open browser, play music, tell time), **or**
+   * Executed locally (open browser, play music, tell time, fetch weather), **or**
    * Sent to OpenAI for an intelligent response
 4. Jarvis speaks the response back to the user
 
@@ -49,6 +50,7 @@ This project is **beginner-friendly**, **well-structured**, and designed to be e
 | `pyttsx3`            | Text-to-speech               |
 | `pywhatkit`          | YouTube automation           |
 | `openai`             | AI responses                 |
+| `requests`           | Weather API calls            |
 | `python-dotenv`      | Secure environment variables |
 
 ---
@@ -62,7 +64,7 @@ JarvisAssistant/
 ├── .env                  # Environment variables (NOT committed)
 ├── .gitignore            # Git ignored files
 ├── README.md             # Project documentation
-├── musicLibrary.py       # (Optional) Music utilities 
+├── musicLibrary.py       # (Optional) Music utilities
 └── .venv/                # Virtual environment
 ```
 
@@ -101,18 +103,21 @@ pip install -r requirements.txt
 > If `requirements.txt` is missing:
 
 ```bash
-pip install speechrecognition pyttsx3 pywhatkit openai python-dotenv pyaudio
+pip install speechrecognition pyttsx3 pywhatkit openai python-dotenv pyaudio requests
 ```
 
 ---
 
-### 4️⃣ Set Up OpenAI API Key (IMPORTANT)
+### 4️⃣ Set Up API Keys (IMPORTANT)
 
 Create a `.env` file in the root directory:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
+WEATHER_API_KEY=your_accuweather_api_key_here
 ```
+
+> 🌦️ Get your free AccuWeather API key at [developer.accuweather.com](https://developer.accuweather.com)
 
 ⚠️ **Never commit your `.env` file**
 (It is already excluded via `.gitignore`)
@@ -129,15 +134,30 @@ python main.py
 
 ## 🎤 Usage Examples
 
-| Command             | What Jarvis Does      |
-| ------------------- | --------------------- |
-| “Jarvis”            | Activates assistant   |
-| “Open YouTube”      | Opens YouTube         |
-| “Open Google”       | Opens Google          |
-| “What is the time?” | Tells current time    |
-| “Play Shape of You” | Plays song on YouTube |
-| “Who is MS Dhoni?”  | AI-generated answer   |
-| “Exit” / “Bye”      | Closes Jarvis         |
+| Command                        | What Jarvis Does               |
+| ------------------------------ | ------------------------------ |
+| "Jarvis"                       | Activates assistant            |
+| "Open YouTube"                 | Opens YouTube                  |
+| "Open Google"                  | Opens Google                   |
+| "What is the time?"            | Tells current time             |
+| "Weather in Mumbai"            | Tells live weather for Mumbai  |
+| "What's the weather in London" | Tells live weather for London  |
+| "Play Shape of You"            | Plays song on YouTube          |
+| "Who is MS Dhoni?"             | AI-generated answer            |
+| "Exit" / "Bye"                 | Closes Jarvis                  |
+
+---
+
+## 🌦️ Weather Feature
+
+Jarvis fetches **real-time weather** using the AccuWeather API.
+
+Just say:
+- *"Jarvis, weather in New York"*
+- *"Jarvis, what's the weather in Delhi"*
+- *"Jarvis, weather"* → Jarvis will ask you for the city name
+
+Jarvis will respond with the **current condition, temperature, and humidity** for that city.
 
 ---
 
@@ -164,7 +184,6 @@ python main.py
 You can easily extend Jarvis by adding:
 
 * 🧠 Conversation memory
-* 🌦️ Weather reports
 * 📰 News headlines
 * 🖥️ Desktop automation
 * 📱 WhatsApp / Email automation
@@ -187,6 +206,17 @@ OPENAI_API_KEY=sk-xxxx
 ```
 
 (no quotes, no spaces)
+
+### ❓ Weather not working / 401 error
+
+➡ Ensure `.env` file has:
+
+```env
+WEATHER_API_KEY=your_accuweather_key_here
+```
+
+➡ Make sure you're using an **AccuWeather** API key, not from any other weather service.
+➡ New keys may take up to **2 hours** to activate.
 
 ### ❓ Microphone not working
 
@@ -230,4 +260,3 @@ Your support means a lot 🙌
 ## 📜 License
 
 This project is open-source and free to use for educational and personal purposes.
-
