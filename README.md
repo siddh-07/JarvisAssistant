@@ -1,7 +1,9 @@
-# 🤖 J.A.R.V.I.S – Personal Voice Assistant
+# 🤖 Jarvis – Personal Voice Assistant (Python)
 
-> **Just A Rather Very Intelligent System**
-> A Sci-Fi Holographic AI Voice Assistant built with Python — powered by OpenAI, AccuWeather, and a fully animated CustomTkinter GUI.
+Jarvis is a **Python-based AI-powered personal voice assistant** inspired by assistants like Alexa and Google Assistant.
+It listens for a wake word ("Jarvis"), understands spoken commands, performs common tasks, and intelligently answers questions using OpenAI — all wrapped in a **Sci-Fi Holographic GUI**.
+
+This project is **beginner-friendly**, **well-structured**, and designed to be easily extendable.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square&logo=python)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-412991?style=flat-square&logo=openai)
@@ -12,47 +14,45 @@
 
 ## ✨ Features
 
-- 🎙️ **Wake Word Detection** — say `"Jarvis"` to activate hands-free
-- 🗣️ **Speech-to-Text** — powered by Google Speech Recognition
-- 🔊 **Text-to-Speech** — uses macOS native `say` command (no dependencies)
-- 🌊 **Animated Waveform Visualizer** — pulses in real time during speech
-- 💬 **Live Chat Log** — full scrollable conversation history
-- 🌦️ **Live Weather Card** — real-time weather via AccuWeather API
-- 🧠 **AI-Powered Responses** — OpenAI GPT-4o-mini for intelligent answers
-- 🎵 **Play Music** — opens YouTube search for any song
-- 🌐 **Web Automation** — open YouTube, Google by voice
-- ⏰ **Time Queries** — ask for current time
-- 🖥️ **Sci-Fi Holographic GUI** — dark cyan/green theme built with CustomTkinter
-- 🔐 **Secure API Key Management** — via `.env` file
+* 🎙️ **Voice Wake Word Detection** (`"Jarvis"`)
+* 🗣️ **Speech-to-Text** using Google Speech Recognition
+* 🔊 **Text-to-Speech (TTS)** — platform-aware (macOS / Windows / Linux)
+* 🌐 **Web Automation** — Open YouTube, Open Google
+* 🎵 **Play Music** from YouTube
+* ⏰ **Time Queries**
+* 🌦️ **Live Weather Reports** (via AccuWeather API)
+* 🧠 **AI-Powered Answers** (via OpenAI API)
+* 🖥️ **Sci-Fi Holographic GUI** built with CustomTkinter
+* 🌊 **Animated Waveform Visualizer**
+* 💬 **Live Chat Log**
+* 🔐 **Secure API Key Management** using `.env`
 
 ---
 
-## 🧠 How It Works
+## 🧠 How Jarvis Works (High-Level Flow)
 
-```
-User says "Jarvis"
-        │
-        ▼
-Wake word detected
-        │
-        ▼
-Jarvis responds: "Yes, how can I help?"
-        │
-        ▼
-Listens for command
-        │
-   ┌────┴──────────────────────┐
-   │                           │
-   ▼                           ▼
-Local command             AI Fallback
-(weather, time,           (OpenAI GPT)
- music, browser)               │
-   │                           │
-   └─────────────┬─────────────┘
-                 │
-                 ▼
-      Speaks reply + updates GUI
-```
+1. Jarvis continuously listens for the wake word **"Jarvis"**
+2. Once detected, Jarvis responds and listens for a command
+3. Command is either:
+   * Executed locally (open browser, play music, tell time, fetch weather)
+   * Sent to OpenAI for an intelligent response
+4. Jarvis speaks the response and displays it in the chat log
+
+---
+
+## 🛠️ Technologies Used
+
+| Technology           | Purpose                      |
+| -------------------- | ---------------------------- |
+| Python 3.11+         | Core language                |
+| `customtkinter`      | Modern GUI framework         |
+| `speech_recognition` | Speech-to-text               |
+| `pyttsx3`            | TTS (Windows / Linux)        |
+| `subprocess (say)`   | TTS (macOS built-in)         |
+| `pywhatkit`          | YouTube automation           |
+| `openai`             | AI responses                 |
+| `requests`           | Weather API calls            |
+| `python-dotenv`      | Secure environment variables |
 
 ---
 
@@ -61,43 +61,28 @@ Local command             AI Fallback
 ```
 JarvisAssistant/
 │
-├── main.py                   # Entry point — run with: python main.py
-├── config.py                 # All colors, settings, and constants
-├── requirements.txt          # Python dependencies
-├── .env                      # API keys (NOT committed)
-├── .gitignore                # Git ignored files
-├── README.md                 # Project documentation
+├── main.py                  # Entry point — python main.py
+├── config.py                # All colors, settings, constants
+├── requirements.txt         # Dependencies
+├── .env                     # API keys (NOT committed)
+├── .gitignore               # Git ignored files
+├── README.md                # Documentation
 │
-└── jarvis/                   # Core package
+└── jarvis/                  # Core package
     ├── __init__.py
-    ├── ai.py                 # OpenAI GPT handler
-    ├── speech.py             # Microphone input & recognition
-    ├── tts.py                # Text-to-speech (macOS say)
-    ├── weather.py            # AccuWeather API
-    ├── commands.py           # Voice command router
+    ├── ai.py                # OpenAI handler
+    ├── speech.py            # Microphone & recognition
+    ├── tts.py               # Text-to-speech (cross-platform)
+    ├── weather.py           # AccuWeather API
+    ├── commands.py          # Command router
     │
-    └── gui/                  # GUI package
+    └── gui/                 # GUI package
         ├── __init__.py
-        ├── app.py            # Main CustomTkinter window
-        ├── chat.py           # Chat log widget
-        ├── waveform.py       # Animated waveform visualizer
-        └── weather_card.py   # Weather data panel
+        ├── app.py           # Main window
+        ├── chat.py          # Chat log widget
+        ├── waveform.py      # Animated waveform
+        └── weather_card.py  # Weather panel
 ```
-
----
-
-## 🛠️ Tech Stack
-
-| Technology           | Purpose                          |
-|----------------------|----------------------------------|
-| Python 3.11+         | Core language                    |
-| CustomTkinter 5.1.3  | Modern GUI framework             |
-| `speech_recognition` | Voice-to-text                    |
-| macOS `say` command  | Text-to-speech (no dependencies) |
-| OpenAI GPT-4o-mini   | AI-powered responses             |
-| AccuWeather API      | Real-time weather data           |
-| `requests`           | HTTP API calls                   |
-| `python-dotenv`      | Secure environment variables     |
 
 ---
 
@@ -110,27 +95,50 @@ git clone https://github.com/siddh-07/JarvisAssistant.git
 cd JarvisAssistant
 ```
 
-### 2️⃣ Install Tkinter Support (macOS only)
+---
 
-> Required on macOS with Homebrew Python:
-
-```bash
-brew install tcl-tk
-brew install python-tk@3.11
-```
-
-### 3️⃣ Create & Activate Virtual Environment
+### 2️⃣ Create & Activate Virtual Environment
 
 ```bash
+# macOS / Linux
 python3.11 -m venv .venv
 source .venv/bin/activate
 ```
+
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+---
+
+### 3️⃣ Install Tkinter (if missing)
+
+**macOS (Homebrew):**
+```bash
+brew install python-tk@3.11
+```
+
+**Ubuntu / Debian:**
+```bash
+sudo apt install python3-tk
+```
+
+**Windows:**
+Tkinter is bundled with the official Python installer from [python.org](https://python.org) — no extra step needed.
+
+---
 
 ### 4️⃣ Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
+
+> If `pyaudio` fails to install, see the [PyAudio fix](#-pyaudio-installation) section below.
+
+---
 
 ### 5️⃣ Set Up API Keys
 
@@ -141,12 +149,50 @@ OPENAI_API_KEY=your_openai_api_key_here
 WEATHER_API_KEY=your_accuweather_api_key_here
 ```
 
-> 🔑 Get your **OpenAI** key at [platform.openai.com](https://platform.openai.com)
-> 🌦️ Get your **AccuWeather** key at [developer.accuweather.com](https://developer.accuweather.com)
+* 🔑 Get your OpenAI key at [platform.openai.com](https://platform.openai.com)
+* 🌦️ Get your free AccuWeather key at [developer.accuweather.com](https://developer.accuweather.com)
 
-⚠️ **Never commit your `.env` file** — it is excluded via `.gitignore`
+⚠️ **Never commit your `.env` file** — it is already excluded via `.gitignore`
 
-### 6️⃣ Run Jarvis
+---
+
+### 6️⃣ Platform-Specific TTS Setup
+
+Jarvis uses different TTS engines depending on your OS. Update `jarvis/tts.py` accordingly:
+
+**macOS** — uses built-in `say` command (no extra install needed):
+```python
+import subprocess
+subprocess.run(["say", "-r", "175", text], check=True)
+```
+
+**Windows** — uses `pyttsx3`:
+```bash
+pip install pyttsx3
+```
+```python
+import pyttsx3
+engine = pyttsx3.init()
+engine.setProperty("rate", 150)
+engine.say(text)
+engine.runAndWait()
+```
+
+**Linux** — uses `pyttsx3` with `espeak`:
+```bash
+sudo apt install espeak
+pip install pyttsx3
+```
+```python
+import pyttsx3
+engine = pyttsx3.init()
+engine.say(text)
+engine.runAndWait()
+```
+
+---
+
+### 7️⃣ Run Jarvis
 
 ```bash
 python main.py
@@ -154,110 +200,109 @@ python main.py
 
 ---
 
-## 🎤 Voice Commands
+## 🎤 Usage Examples
 
-| Say This                         | Jarvis Does                       |
-|----------------------------------|-----------------------------------|
-| `"Jarvis"`                       | Activates and listens             |
-| `"Open YouTube"`                 | Opens YouTube in browser          |
-| `"Open Google"`                  | Opens Google in browser           |
-| `"What's the time?"`             | Tells current time                |
-| `"Weather in Mumbai"`            | Shows live weather + updates card |
-| `"What's the weather in London"` | Shows live weather for London     |
-| `"Play Blinding Lights"`         | Opens YouTube search for song     |
-| `"Who is Elon Musk?"`            | AI-generated answer               |
-| `"What is quantum computing?"`   | AI-generated answer               |
-| `"Exit"` / `"Bye"`               | Closes Jarvis                     |
-| `"Thank you"`                    | Responds and closes               |
-
-> 💡 You can also click the **⏺ MIC** button to skip the wake word and speak directly.
+| Command                          | What Jarvis Does              |
+| -------------------------------- | ----------------------------- |
+| "Jarvis"                         | Activates the assistant       |
+| "Open YouTube"                   | Opens YouTube in browser      |
+| "Open Google"                    | Opens Google in browser       |
+| "What is the time?"              | Tells current time            |
+| "Weather in Mumbai"              | Live weather for Mumbai       |
+| "What's the weather in London"   | Live weather for London       |
+| "Play Shape of You"              | Plays song on YouTube         |
+| "Who is Elon Musk?"              | AI-generated answer           |
+| "Exit" / "Bye"                   | Closes Jarvis                 |
 
 ---
 
-## ⚙️ Configuration
+## 🔧 PyAudio Installation
 
-All settings live in `config.py` — no need to dig through code:
+`pyaudio` can be tricky to install. Use the fix for your OS:
 
-```python
-# App
-APP_TITLE    = "J.A.R.V.I.S"
-WAKE_WORD    = "jarvis"
-AI_MODEL     = "gpt-4o-mini"
-SPEECH_RATE  = 175              # Words per minute for macOS say
-
-# Timeouts (seconds)
-WAKE_TIMEOUT = 5                # Wait for wake word
-CMD_TIMEOUT  = 8                # Wait for command after activation
-
-# Colors — Sci-Fi Holographic Theme
-ACCENT_COLOR = "#00fff7"        # Bright cyan
-GREEN_ACCENT = "#00ff99"        # Neon green
-BG_COLOR     = "#050d12"        # Deep dark background
+**macOS:**
+```bash
+brew install portaudio
+pip install pyaudio
 ```
+
+**Windows:**
+```bash
+pip install pipwin
+pipwin install pyaudio
+```
+
+**Ubuntu / Debian:**
+```bash
+sudo apt install portaudio19-dev
+pip install pyaudio
+```
+
+---
+
+## 🌦️ Weather Feature
+
+Jarvis fetches **real-time weather** using the AccuWeather API. Just say:
+
+* *"Jarvis, weather in New York"*
+* *"Jarvis, what's the weather in Delhi"*
+* *"Jarvis, weather"* → Jarvis will ask you for the city
+
+Jarvis responds with the current **condition, temperature, and humidity** and updates the weather panel in the GUI.
 
 ---
 
 ## 🔐 Security & Privacy
 
-- All API keys stored securely in `.env`
-- No credentials hard-coded anywhere in the codebase
-- `.env` excluded from Git via `.gitignore`
-- Repository is safe to keep public
+* API keys are stored securely in `.env`
+* No credentials are hard-coded anywhere
+* Repository is safe to keep **public**
+
+---
+
+## ⚙️ Performance Notes
+
+* Ambient noise calibration runs once at startup
+* Single shared speech recognizer instance
+* Background thread handles wake word detection
+* Mic button prevents feedback loop while Jarvis is speaking
+
+---
+
+## 🧩 Customization Ideas
+
+You can easily extend Jarvis by adding:
+
+* 📰 **News headlines**
+* 🧠 **Conversation memory**
+* 📱 **WhatsApp / Email automation**
+* 🔔 **Reminders & alarms**
+* 🖥️ **Desktop app controls**
 
 ---
 
 ## 🐞 Troubleshooting
 
-### ❓ `macOS 26 required` crash on launch
-
-This is caused by incompatible packages (pyobjc, pygame, pyttsx3) on older macOS. Fix:
-
-```bash
-brew install python-tk@3.11
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
 ### ❓ `No module named '_tkinter'`
+➡ Tkinter is not bundled with your Python. See [Step 3](#3️⃣-install-tkinter-if-missing) above.
 
-```bash
-brew install tcl-tk
-brew install python-tk@3.11
-```
+### ❓ `macOS version` abort crash
+➡ Usually caused by `pyobjc`, `pyttsx3`, or `pygame` being incompatible with your macOS version. Use the macOS `say` command for TTS instead.
 
-### ❓ Weather returns 401 error
+### ❓ Weather returning 401
+➡ Make sure you are using an **AccuWeather** key (not OpenWeatherMap or another service). New keys can take up to **2 hours** to activate.
 
-- Make sure you are using an **AccuWeather** key, not OpenWeatherMap or any other service
-- AccuWeather keys look like: `zpka_xxxxxxxxxxxxxxxx_xxxxxxxx`
-- Newly created keys may take up to **2 hours** to activate
-
-### ❓ OPENAI_API_KEY not loading
-
-Ensure `.env` has no quotes or extra spaces:
-
+### ❓ `OPENAI_API_KEY not found`
+➡ Ensure your `.env` file exists in the root folder with no quotes:
 ```env
-OPENAI_API_KEY=sk-xxxxxxxxxxxx    ✅ Correct
-OPENAI_API_KEY="sk-xxxxxxxxxxxx"  ❌ Wrong
+OPENAI_API_KEY=sk-xxxx
 ```
+
+### ❓ PyAudio installation fails
+➡ See the [PyAudio Installation](#-pyaudio-installation) section above.
 
 ### ❓ Microphone not detected
-
-```bash
-pip install pyaudio
-```
-Then go to **System Settings → Privacy & Security → Microphone** and enable access for Terminal/your IDE.
-
----
-
-## 🧩 Roadmap
-
-- [ ] 📰 Live news headlines
-- [ ] 🧠 Conversation memory across sessions
-- [ ] 📱 WhatsApp / Email automation
-- [ ] 🔔 Reminders and alarms
-- [ ] 🖥️ System controls (volume, brightness, app launch)
-- [ ] 🌍 Multi-language support
+➡ Check system microphone permissions and ensure `pyaudio` is installed correctly.
 
 ---
 
@@ -265,17 +310,19 @@ Then go to **System Settings → Privacy & Security → Microphone** and enable 
 
 Contributions are welcome! Feel free to:
 
-- Open issues for bugs or feature requests
-- Submit pull requests
-- Suggest improvements to the GUI or AI behavior
-- Improve documentation
+* Open issues
+* Submit pull requests
+* Suggest new features
+* Improve documentation
 
 ---
 
 ## 👨‍💻 Author
 
 **Siddh Bhadani**
-Developer | AI & Automation Enthusiast
+📌 Developer | AI & Automation Enthusiast
+
+If you need help, have questions, or want to collaborate — feel free to reach out.
 
 ---
 
@@ -283,9 +330,9 @@ Developer | AI & Automation Enthusiast
 
 If you found this project helpful:
 
-- ⭐ Star the repository
-- 🍴 Fork it and build on top
-- 📢 Share it with others
+* ⭐ Star the repository
+* 🍴 Fork it
+* 📢 Share it
 
 Your support means a lot 🙌
 
