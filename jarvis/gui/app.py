@@ -278,6 +278,12 @@ class JarvisApp(ctk.CTk):
         process(command, on_reply=on_reply, on_weather=on_weather)
 
         self._is_speaking = False
+        
+        # Check for exit commands to close the app gracefully
+        if command in ["exit", "quit", "stop", "bye", "thank you", "thanks"]:
+            self.after(500, self.destroy)  # 500ms delay so speech finishes first
+            return
+        
         self.set_status(f"Say  '{WAKE_WORD.capitalize()}'  to wake me up", TEXT_DIM)
 
     # ==================================================================
