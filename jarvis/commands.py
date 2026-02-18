@@ -6,7 +6,6 @@ Routes spoken commands to the appropriate handler.
 import sys
 import datetime
 import webbrowser
-import pywhatkit
 
 from jarvis.ai      import ask
 from jarvis.weather import get_weather, format_weather
@@ -84,13 +83,13 @@ def process(command: str, on_reply=None, on_weather=None):
         reply = "Goodbye!"
         if on_reply:
             on_reply(reply)
-        sys.exit()
+        return reply
 
     elif command in ["thank you", "thanks"]:
         reply = "You're most welcome!"
         if on_reply:
             on_reply(reply)
-        sys.exit()
+        return reply
 
     # ---------- AI FALLBACK ----------
     else:
