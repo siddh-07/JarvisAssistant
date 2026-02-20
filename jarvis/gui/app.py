@@ -263,31 +263,28 @@ class JarvisApp(ctk.CTk):
 
     def _run_command(self, command: str):
         self._is_speaking = True
-
-        # Thread-safe UI update
-        self.after(0, lambda: self.set_status("Thinking...", ACCENT_COLOR))
+        self.set_status("Processing...", ACCENT_COLOR)
 
         def on_reply(text):
-            # Always update UI from main thread
-            self.after(0, lambda: self.add_message(text, sender="jarvis"))
-            self.after(0, lambda: self.set_status("Speaking...", ACCENT_COLOR))
-            self.after(0, self.start_waveform)
+            self.add_message(text, sender="jarvis")
+            self.set_status("Speaking...", ACCENT_COLOR)
+            self.start_waveform()
             speak(text)
-            self.after(0, self.stop_waveform)
+            self.stop_waveform()
 
         def on_weather(data):
-            self.after(0, lambda: self.update_weather_card(data))
+            self.update_weather_card(data)
 
-        def on_exit():
-            # Delay close so Jarvis finishes speaking goodbye
-            self.after(1200, self.destroy)
-
-        process(command, on_reply=on_reply, on_weather=on_weather, on_exit=on_exit)
+        process(command, on_reply=on_reply, on_weather=on_weather)
 
         self._is_speaking = False
-        self.after(0, lambda: self.set_status(
-            f"Say  '{WAKE_WORD.capitalize()}'  to wake me up", TEXT_DIM
-        ))
+        
+        # Check for exit commands to close the app gracefully
+        if command in ["exit", "quit", "stop", "bye", "thank you", "thanks"]:
+            self.after(500, self.destroy)  # 500ms delay so speech finishes first
+            return
+        
+        self.set_status(f"Say  '{WAKE_WORD.capitalize()}'  to wake me up", TEXT_DIM)
 
     # ==================================================================
     # BACKGROUND WAKE WORD LISTENER
@@ -300,7 +297,7 @@ class JarvisApp(ctk.CTk):
         calibrate()
 
         greeting = "Jarvis online. Say Jarvis to wake me up."
-        self.after(0, lambda: self.add_message(greeting, sender="jarvis"))
+        self.add_message(greeting, sender="jarvis")
         speak(greeting)
 
         while True:
@@ -312,40 +309,25 @@ class JarvisApp(ctk.CTk):
                 continue
 
             if WAKE_WORD in word:
-                self.after(0, lambda: self.set_status(
-                    "Activated! Listening for command...", ACCENT_COLOR
-                ))
+                self.set_status("Activated! Listening for command...", ACCENT_COLOR)
                 reply = "Yes, how can I help you?"
-                self.after(0, lambda: self.add_message(reply, sender="jarvis"))
+                self.add_message(reply, sender="jarvis")
                 speak(reply)
 
-                # ---- Retry up to 3 times before going back to wake word ----
-                command = None
-                for attempt in range(3):
-                    command = listen(timeout=CMD_TIMEOUT, phrase_limit=CMD_PHRASE_LIM)
-                    if command:
-                        break
-                    # Don't ask again on last attempt
-                    if attempt < 2:
-                        retry_msg = "Sorry, didn't catch that. Please say your command."
-                        self.after(0, lambda m=retry_msg: self.add_message(m, sender="jarvis"))
-                        speak(retry_msg)
-
+                command = listen(timeout=CMD_TIMEOUT, phrase_limit=CMD_PHRASE_LIM)
                 if command:
-                    self.after(0, lambda c=command: self.add_message(c, sender="user"))
+                    self.add_message(command, sender="user")
                     threading.Thread(
                         target=self._run_command, args=(command,), daemon=True
                     ).start()
                 else:
-                    msg = "I couldn't hear you. Say Jarvis to try again."
-                    self.after(0, lambda: self.add_message(msg, sender="jarvis"))
+                    msg = "I didn't catch that. Please try again."
+                    self.add_message(msg, sender="jarvis")
                     speak(msg)
-                    self.after(0, lambda: self.set_status(
-                        f"Say  '{WAKE_WORD.capitalize()}'  to wake me up", TEXT_DIM
-                    ))
+                    self.set_status(f"Say  '{WAKE_WORD.capitalize()}'  to wake me up", TEXT_DIM)
 
             elif word in ["exit", "quit", "bye"]:
                 msg = "Goodbye!"
-                self.after(0, lambda: self.add_message(msg, sender="jarvis"))
+                self.add_message(msg, sender="jarvis")
                 speak(msg)
-                self.after(1200, self.destroy)
+                self.after(500, self.destroy)
