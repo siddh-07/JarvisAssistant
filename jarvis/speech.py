@@ -9,7 +9,9 @@ from config import SPEECH_LANGUAGE
 
 # Single shared recognizer instance
 recognizer = sr.Recognizer()
-
+recognizer.energy_threshold        = 300    # sensitivity (lower = picks up quieter speech)
+recognizer.dynamic_energy_threshold = True  # auto-adjusts to background noise
+recognizer.pause_threshold          = 0.6   # seconds of silence before phrase ends (default 0.8)
 
 def calibrate():
     """Calibrate microphone for ambient noise once at startup."""
